@@ -1,0 +1,79 @@
+.container {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    /* Default, overridden inline */
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.5s ease-in-out;
+}
+
+/* ... (keep label styles) ... */
+
+.dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+}
+
+.activeDot {
+    background: white;
+    width: 18px;
+    /* Elongated for active */
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.label {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.text {
+    font-size: 0.9rem;
+    margin: 4px 0 0 0;
+    opacity: 0.95;
+}
+
+.action {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

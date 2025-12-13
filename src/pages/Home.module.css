@@ -1,0 +1,183 @@
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.card {
+    position: relative;
+    padding: 20px;
+    border-radius: 24px;
+    /* Super rounded iOS style */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    /* Glassmorphism */
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+}
+
+.card:active {
+    transform: scale(0.96);
+}
+
+/* Icons behave like "App Icons" */
+.cardIcon {
+    min-width: 48px;
+    height: 48px;
+    padding: 10px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    /* Important so padding stays inside */
+}
+
+.cardTitle {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #111827;
+    margin-bottom: 2px;
+    letter-spacing: -0.02em;
+}
+
+.cardDesc {
+    font-size: 0.9rem;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+/* Themes - Subtle colorful backgrounds for the ICONS, not the whole card */
+/* This mimics the iOS Settings or Widget look */
+
+.cardPrimary .cardIcon {
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    /* Blue Gradient */
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.cardSecondary .cardIcon {
+    background: linear-gradient(135deg, #10B981, #059669);
+    /* Green Gradient */
+    color: white;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.cardAccent .cardIcon {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    /* Orange Gradient */
+    color: white;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+.cardMap .cardIcon {
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
+    /* Indigo Gradient */
+    color: white;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Modern Form Styles */
+.formSection {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.input, .select, .textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.8);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    box-sizing: border-box; /* Important */
+    color: #1f2937;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+    outline: none;
+    background: white;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.textarea {
+    min-height: 100px;
+    resize: vertical;
+    margin-bottom: 16px;
+}
+
+.submitBtn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transition: transform 0.2s;
+}
+
+.submitBtn:active {
+    transform: scale(0.98);
+}
+
+.premiumBox {
+    margin-top: 24px;
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%);
+    border-radius: 20px;
+    border: 1px solid #FCD34D;
+}
+
+.premiumBtn {
+    display: inline-block;
+    background: #F59E0B;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px; /* Pill shape */
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 12px;
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+}
+
+/* Add a subtle "Sheen" to the cards */
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+}

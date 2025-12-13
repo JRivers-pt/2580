@@ -1,0 +1,52 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) var(--space-sm);
+    background-color: transparent;
+    /* Seamless integration */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+}
+
+.menuBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text);
+    padding: var(--space-xs);
+}
+
+.navLinks {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.link {
+    text-decoration: none;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.link:hover,
+.link.active {
+    color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+    .navLinks {
+        display: none;
+        /* Mobile menu to be implemented later if needed, sticking to simple for now */
+    }
+}

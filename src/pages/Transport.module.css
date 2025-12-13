@@ -1,0 +1,82 @@
+.container {
+    padding: var(--space-md);
+}
+
+.header {
+    margin-bottom: var(--space-md);
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.controls {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.tabBtn {
+    flex: 1;
+    padding: var(--space-sm);
+    border: none;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.tabBtn.active {
+    background: white;
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-sm);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.card {
+    background: white;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--color-accent);
+}
+
+.routeTitle {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: var(--space-xs);
+}
+
+.operator {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-sm);
+}
+
+.times {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.timeBadge {
+    background: var(--color-surface);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
