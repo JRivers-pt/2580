@@ -9,9 +9,10 @@ import Admin from './pages/Admin'; // New
 import Navbar from './components/Navbar';
 import AuthContext from './AuthContext';
 
+import AIAssistant from './components/AIAssistant';
+
 function App() {
   const location = useLocation();
-  // Hide navbar on some routes if needed, but keeping it simple for now
 
   return (
     <AuthContext>
@@ -22,10 +23,11 @@ function App() {
             <Route path="/transport" element={<Transport />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/housing" element={<Housing />} />
-            <Route path="/map" element={<MapPage />} /> {/* New */}
-            <Route path="/admin" element={<Admin />} /> {/* Hidden Route */}
+            <Route path="/map" element={<MapPage />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </div>
+        <AIAssistant /> {/* Floating AI Button */}
         <Navbar />
       </div>
     </AuthContext>
