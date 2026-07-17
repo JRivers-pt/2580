@@ -8,23 +8,21 @@ import styles from './Home.module.css'; // Use the new Glass styles
 const mockListings = [
     {
         id: 1,
-        type: 'Rent',
-        title: 'Room in T3 near Aldi',
-        price: '€350',
-        contact: 'Maria S.',
-        description: 'Furnished room, bills included. Female preferred.',
+        type: 'Arrendamento',
+        title: 'Quarto em T3 perto do Aldi',
+        contact: 'Maria S. — 9XX XXX XXX',
+        description: 'Quarto mobilado, despesas incluídas. Preferência feminina.',
         date: '2 Oct',
-        isPremium: false
+        is_premium: false
     },
     {
         id: 2,
-        type: 'Sale',
-        title: 'T2 Carregado Centre',
-        price: '€185,000',
-        contact: 'Imobiliária Local',
-        description: 'RENOVATED. Garage, 2nd floor w/ elevator. Best investment.',
+        type: 'Venda',
+        title: 'T2 Centro do Carregado',
+        contact: 'Imobiliária Local — 9XX XXX XXX',
+        description: 'RENOVADO. Garagem, 2.º andar com elevador.',
         date: 'Hoje',
-        isPremium: true
+        is_premium: true
     }
 ];
 
@@ -33,7 +31,7 @@ const Housing = () => {
     const [listings, setListings] = useState([]);
     const [loading, setLoading] = useState(true);
     // Missing IDs fixed:
-    const [newListing, setNewListing] = useState({ type: 'Rent', title: '', price: '', contact: '', description: '' });
+    const [newListing, setNewListing] = useState({ type: 'Arrendamento', title: '', contact: '', description: '' });
     const [submitting, setSubmitting] = useState(false);
     const [fetchError, setFetchError] = useState(null);
     const { t } = useTranslation();
@@ -79,8 +77,7 @@ const Housing = () => {
 
         const listingToInsert = {
             ...newListing,
-            date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-            isPremium: false, // New listings are not premium by default
+            is_premium: false,
         };
 
         const { data, error } = await supabase
@@ -93,7 +90,7 @@ const Housing = () => {
             alert("Failed to post listing: " + error.message);
         } else {
             setListings(prev => [data[0], ...prev]);
-            setNewListing({ type: 'Rent', title: '', price: '', contact: '', description: '' });
+            setNewListing({ type: 'Arrendamento', title: '', contact: '', description: '' });
             alert("Listing posted successfully!");
         }
         setSubmitting(false);
@@ -131,46 +128,40 @@ const Housing = () => {
                         <h3>{t('post_rental')}</h3>
                         <form onSubmit={handleSubmit} className={styles.form}>
                             <div className={styles.formGrid}>
-                                <select
+                            <select
                                     value={newListing.type}
                                     onChange={(e) => setNewListing({ ...newListing, type: e.target.value })}
                                     required
-                                    disabled // Locked to Rent
-                                    style={{ background: '#f3f4f6' }}
+                                    style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #e5e7eb', fontSize: '0.9rem', fontFamily: 'inherit' }}
                                 >
-                                    <option value="Rent">Rent (Arrendamento)</option>
+                                    <option value="Arrendamento">🏠 Arrendamento</option>
+                                    <option value="Venda">🏷️ Venda</option>
+                                    <option value="Quarto">🛏️ Quarto</option>
                                 </select>
-                                <input
-                                    type="text"
-                                    placeholder="Price (e.g. €400/month)"
-                                    value={newListing.price}
-                                    onChange={(e) => setNewListing({ ...newListing, price: e.target.value })}
-                                    required
-                                />
                             </div>
                             <input
                                 type="text"
-                                placeholder="Title (e.g. Quarto em T3 perto do Aldi)"
+                                placeholder="Título (ex: Quarto em T3 perto do Aldi)"
                                 value={newListing.title}
                                 onChange={(e) => setNewListing({ ...newListing, title: e.target.value })}
                                 required
                             />
                             <input
                                 type="text"
-                                placeholder="Contact (Phone or Email)"
+                                placeholder="Contacto (Telemóvel ou Email)"
                                 value={newListing.contact}
                                 onChange={(e) => setNewListing({ ...newListing, contact: e.target.value })}
                                 required
                             />
                             <textarea
-                                placeholder="Description (Location, Conditions, Bills included?)"
+                                placeholder="Descrição (Localização, condições, despesas incluídas?)"
                                 value={newListing.description}
                                 onChange={(e) => setNewListing({ ...newListing, description: e.target.value })}
                                 required
                                 className={styles.textarea}
                             />
                             <button type="submit" className={styles.submitBtn} disabled={submitting}>
-                                {submitting ? 'Posting...' : t('post_rental')}
+                                {submitting ? 'A publicar...' : 'Publicar Anúncio (Grátis)'}
                             </button>
                         </form>
 
@@ -189,7 +180,7 @@ const Housing = () => {
                     </div>
 
                     <div className={styles.list}>
-                        <h3>Latest Listings</h3>
+                        <h3>{t('latest_listings')}</h3>
                         {fetchError && <p style={{ color: 'red' }}>Error loading board: {fetchError}</p>}
 
                         {loading ? <p>Loading...</p> : listings.map(item => (
@@ -198,24 +189,37 @@ const Housing = () => {
                                 className={styles.card}
                                 style={{
                                     borderLeftColor: item.type === 'Rent' ? '#3B82F6' : '#10B981',
-                                    border: item.isPremium ? '2px solid #F59E0B' : 'none',
-                                    borderLeft: item.isPremium ? '5px solid #F59E0B' : `5px solid ${item.type === 'Rent' ? '#3B82F6' : '#10B981'}`,
-                                    background: item.isPremium ? 'linear-gradient(to right, #FFFBEB, #FFFFFF)' : 'white'
+                                    border: item.is_premium ? '2px solid #F59E0B' : 'none',
+                                    borderLeft: item.is_premium ? '5px solid #F59E0B' : `5px solid ${item.type === 'Rent' ? '#3B82F6' : '#10B981'}`,
+                                    background: item.is_premium ? 'linear-gradient(to right, #FFFBEB, #FFFFFF)' : 'white'
                                 }}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                     <span className={styles.operator} style={{ color: item.type === 'Rent' ? '#3B82F6' : '#10B981' }}>
-                                        {item.type} {item.isPremium && <span style={{ background: '#F59E0B', color: 'white', padding: '0 6px', borderRadius: '4px', fontSize: '0.7rem', marginLeft: '6px' }}>DESTAQUE</span>}
+                                        {item.type} {item.is_premium && <span style={{ background: '#F59E0B', color: 'white', padding: '0 6px', borderRadius: '4px', fontSize: '0.7rem', marginLeft: '6px' }}>DESTAQUE</span>}
                                     </span>
                                     <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{item.date?.substring(0, 10) || 'Just now'}</span>
                                 </div>
                                 <div className={styles.routeTitle}>{item.title}</div>
-                                <div style={{ fontWeight: '800', fontSize: '1.2rem', margin: '4px 0' }}>{item.price}</div>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', margin: '4px 0 12px 0' }}>{item.description}</p>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', margin: '6px 0 12px 0' }}>{item.description}</p>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
-                                    <User size={16} />
-                                    <span>{item.contact}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                    <a
+                                        href={item.contact?.match(/\d{9}/) ? `tel:${item.contact.match(/\d{9}/)[0]}` : `mailto:${item.contact}`}
+                                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', background: '#ECFDF5', color: '#10B981', textDecoration: 'none', fontWeight: '700', fontSize: '0.85rem', border: '1px solid #A7F3D0' }}
+                                    >
+                                        📞 Contactar para preço e info
+                                    </a>
+                                    <a
+                                        href={`https://wa.me/?text=${encodeURIComponent(`🏠 ${item.type}: ${item.title}\n${item.description}\n📞 Contactar: ${item.contact}\n\nVia 2580 Carregado`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ display:'inline-flex', alignItems:'center', gap:'5px', padding:'6px 12px', borderRadius:'8px', background:'#25D366', color:'white', textDecoration:'none', fontWeight:'700', fontSize:'0.8rem', flexShrink: 0 }}
+                                        onClick={e => e.stopPropagation()}
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                        Partilhar
+                                    </a>
                                 </div>
                             </div>
                         ))}

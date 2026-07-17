@@ -1,19 +1,24 @@
 import React from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Transport from './pages/Transport';
 import Jobs from './pages/Jobs';
 import Housing from './pages/Housing';
-import MapPage from './pages/Map'; // New
-import Admin from './pages/Admin'; // New
+import MapPage from './pages/Map';
+import Admin from './pages/Admin';
+import News from './pages/News';
+import Report from './pages/Report';
+import Directory from './pages/Directory';
+import Alerts from './pages/Alerts';
+import Boleia from './pages/Boleia';
+import PerdidosAchados from './pages/PerdidosAchados';
 import Navbar from './components/Navbar';
+import CookieBanner from './components/CookieBanner';
+import Events from './pages/Events';
 import AuthContext from './AuthContext';
-
 import AIAssistant from './components/AIAssistant';
 
 function App() {
-  const location = useLocation();
-
   return (
     <AuthContext>
       <div className="app-container">
@@ -25,9 +30,17 @@ function App() {
             <Route path="/housing" element={<Housing />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/report" element={<Report />} />
+            <Route path="/directory" element={<Directory />} />
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/boleia" element={<Boleia />} />
+            <Route path="/perdidos" element={<PerdidosAchados />} />
+            <Route path="/events" element={<Events />} />
           </Routes>
         </div>
-        <AIAssistant /> {/* Floating AI Button */}
+        <AIAssistant />
+        <CookieBanner />
         <Navbar />
       </div>
     </AuthContext>
