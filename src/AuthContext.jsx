@@ -16,10 +16,16 @@ export default function AuthProvider({ children }) {
         }
 
         // Check active session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
+        supabase.auth.getSession()
+            .then(({ data: { session } }) => {
+                setUser(session?.user ?? null);
+            })
+            .catch((err) => {
+                console.error("Auth session error:", err);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
 
         // Listen for changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
