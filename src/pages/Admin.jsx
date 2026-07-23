@@ -17,6 +17,7 @@ const Admin = () => {
     const [business, setBusiness] = useState({ name: '', category: 'Comércio', address: '', phone: '', description: '', website: '', instagram: '', is_premium: false });
     const [ad, setAd] = useState({ title: '', description: '', gradient: 'linear-gradient(135deg, #10B981 0%, #3B82F6 100%)', link_url: '', is_active: true });
     const [alert, setAlert] = useState({ type: 'info', title: '', body: '', location: '', is_verified: false });
+    const [pendingItems, setPendingItems] = useState({ boleias: [], perdidos: [] });
 
     const TABS = [
         { key: 'news', label: '📢 Notícias', color: '#10B981' },
@@ -24,14 +25,44 @@ const Admin = () => {
         { key: 'business', label: '🏪 Diretório', color: '#3B82F6' },
         { key: 'ads', label: '📣 Banners', color: '#6366F1' },
         { key: 'alerts', label: '🛡️ Alertas', color: '#EF4444' },
+        { key: 'pendentes', label: '⏳ Pendentes', color: '#8B5CF6' },
     ];
 
     useEffect(() => {
         if (!supabase) return;
-        supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            if (session) fetchPending();
+        });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+            setSession(s);
+            if (s) fetchPending();
+        });
         return () => subscription.unsubscribe();
     }, []);
+
+    const fetchPending = async () => {
+        const { data: bData } = await supabase.from('boleia').select('*').eq('status', 'pending');
+        const { data: pData } = await supabase.from('perdidos_achados').select('*').eq('status', 'pending');
+        setPendingItems({ boleias: bData || [], perdidos: pData || [] });
+    };
+
+    const approveItem = async (table, id) => {
+        const { error } = await supabase.from(table).update({ status: 'approved' }).eq('id', id);
+        if (!error) {
+            window.alert('✅ Aprovado com sucesso!');
+            fetchPending();
+        } else {
+            window.alert('Erro ao aprovar: ' + error.message);
+        }
+    };
+
+    const rejectItem = async (table, id) => {
+        const { error } = await supabase.from(table).delete().eq('id', id);
+        if (!error) {
+            fetchPending();
+        }
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -205,6 +236,43 @@ const Admin = () => {
                         </label>
                         <button type="submit" style={btnStyle('#EF4444')}>Publicar Alerta</button>
                     </form>
+                </div>
+            )}
+
+            {/* Pendentes tab */}
+            {activeTab === 'pendentes' && (
+                <div style={cardStyle('#8B5CF6')}>
+                    <h2 style={{ margin: '0 0 16px 0' }}>⏳ Aguardar Aprovação</h2>
+                    <p style={{ color: '#4B5563', fontSize: '0.9rem', marginBottom: '20px' }}>
+                        Analise os envios da comunidade antes de serem publicados.
+                    </p>
+
+                    <h3 style={{ fontSize: '1.1rem', marginTop: '20px' }}>🚗 Boleias ({pendingItems.boleias.length})</h3>
+                    {pendingItems.boleias.length === 0 ? <p style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>Nenhuma boleia pendente.</p> : null}
+                    {pendingItems.boleias.map(b => (
+                        <div key={b.id} style={{ padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', marginBottom: '10px' }}>
+                            <div style={{ fontWeight: '600' }}>{b.origin} → {b.destination}</div>
+                            <div style={{ fontSize: '0.85rem', color: '#6B7280', margin: '4px 0' }}>Data: {b.date} | Contacto: {b.contact}</div>
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                                <button onClick={() => approveItem('boleia', b.id)} style={{ ...btnStyle('#10B981'), padding: '6px 12px', fontSize: '0.8rem' }}>Aprovar</button>
+                                <button onClick={() => rejectItem('boleia', b.id)} style={{ ...btnStyle('#EF4444'), padding: '6px 12px', fontSize: '0.8rem' }}>Rejeitar / Apagar</button>
+                            </div>
+                        </div>
+                    ))}
+
+                    <h3 style={{ fontSize: '1.1rem', marginTop: '20px' }}>❤️ Perdidos & Achados ({pendingItems.perdidos.length})</h3>
+                    {pendingItems.perdidos.length === 0 ? <p style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>Nenhum item pendente.</p> : null}
+                    {pendingItems.perdidos.map(p => (
+                        <div key={p.id} style={{ padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', marginBottom: '10px' }}>
+                            <div style={{ fontWeight: '600' }}>{p.title}</div>
+                            <div style={{ fontSize: '0.85rem', color: '#6B7280', margin: '4px 0' }}>{p.description}</div>
+                            <div style={{ fontSize: '0.85rem', color: '#6B7280', margin: '4px 0' }}>Contacto: {p.contact}</div>
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                                <button onClick={() => approveItem('perdidos_achados', p.id)} style={{ ...btnStyle('#10B981'), padding: '6px 12px', fontSize: '0.8rem' }}>Aprovar</button>
+                                <button onClick={() => rejectItem('perdidos_achados', p.id)} style={{ ...btnStyle('#EF4444'), padding: '6px 12px', fontSize: '0.8rem' }}>Rejeitar / Apagar</button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

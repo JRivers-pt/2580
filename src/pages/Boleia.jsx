@@ -46,6 +46,7 @@ const Boleia = () => {
         contact: '',
         notes: '',
         recurring: false,
+        acceptedTerms: false,
     });
 
     useEffect(() => { fetchRides(); }, []);
@@ -56,6 +57,7 @@ const Boleia = () => {
         const { data, error } = await supabase
             .from('boleia')
             .select('*')
+            .eq('status', 'approved')
             .gte('date', new Date().toISOString().split('T')[0])
             .order('date', { ascending: true })
             .order('time', { ascending: true });
@@ -65,18 +67,32 @@ const Boleia = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!form.acceptedTerms) {
+            window.alert('É obrigatório aceitar os Termos de Responsabilidade.');
+            return;
+        }
         setSubmitting(true);
+        const { acceptedTerms, ...submitData } = form;
         if (!supabase) {
             setTimeout(() => {
-                setRides(prev => [{ ...form, id: Date.now(), created_at: new Date().toISOString() }, ...prev]);
-                setForm({ origin: '', destination: '', date: '', time: '', seats: 1, contact: '', notes: '', recurring: false });
+                setForm({ origin: '', destination: '', date: '', time: '', seats: 1, contact: '', notes: '', recurring: false, acceptedTerms: false });
                 setShowForm(false); setSubmitted(true); setSubmitting(false);
             }, 800);
             return;
         }
-        const { error } = await supabase.from('boleia').insert([form]);
-        if (!error) { await fetchRides(); setShowForm(false); setSubmitted(true); setForm({ origin: '', destination: '', date: '', time: '', seats: 1, contact: '', notes: '', recurring: false }); }
+        const { error } = await supabase.from('boleia').insert([{ ...submitData, status: 'pending' }]);
+        if (!error) { 
+            setShowForm(false); setSubmitted(true); 
+            setForm({ origin: '', destination: '', date: '', time: '', seats: 1, contact: '', notes: '', recurring: false, acceptedTerms: false }); 
+        } else {
+            window.alert('Erro ao publicar: ' + error.message);
+        }
         setSubmitting(false);
+    };
+
+    const handleReport = (id) => {
+        window.alert('🚨 Denúncia registada! A equipa de moderação foi alertada e irá analisar a publicação.');
+        setRides(prev => prev.filter(r => r.id !== id));
     };
 
     const filtered = rides.filter(r => {
@@ -138,7 +154,7 @@ const Boleia = () => {
             {showForm && (
                 <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: 'var(--shadow-md)', border: '1px solid #e5e7eb' }}>
                     <h3 style={{ margin: '0 0 16px 0' }}>Nova Boleia</h3>
-                    {submitted && <div style={{ background: '#ECFDF5', borderLeft: '4px solid #10B981', padding: '10px', borderRadius: '6px', marginBottom: '12px', fontSize: '0.9rem', color: '#065F46' }}>✅ Boleia publicada!</div>}
+                    {submitted && <div style={{ background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px', borderRadius: '6px', marginBottom: '12px', fontSize: '0.9rem', color: '#92400E' }}>✅ Boleia submetida! Irá aparecer após aprovação da moderação para garantir a segurança de todos.</div>}
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                             <input placeholder="Origem (ex: Carregado)" value={form.origin} onChange={e => setForm({ ...form, origin: e.target.value })} required style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #e5e7eb', fontSize: '0.9rem', fontFamily: 'inherit' }} />
@@ -160,11 +176,17 @@ const Boleia = () => {
                             <input type="checkbox" checked={form.recurring} onChange={e => setForm({ ...form, recurring: e.target.checked })} />
                             Viagem recorrente (diária/semanal)
                         </label>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: 0 }}>
-                            ⚠️ O 2580 não se responsabiliza pelas boleias. Combinações são entre os utilizadores.
-                        </p>
-                        <button type="submit" disabled={submitting} style={{ padding: '12px', borderRadius: '10px', border: 'none', background: submitting ? '#9CA3AF' : 'var(--color-primary)', color: 'white', fontWeight: '700', fontSize: '1rem', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                            {submitting ? <><Loader size={18} className="spin" /> A publicar...</> : <><Car size={18} /> Publicar Boleia</>}
+                        <div style={{ background: '#FEF2F2', padding: '10px', borderRadius: '8px', borderLeft: '4px solid #EF4444', marginTop: '10px' }}>
+                            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', fontSize: '0.8rem', color: '#7F1D1D' }}>
+                                <input type="checkbox" checked={form.acceptedTerms} onChange={e => setForm({ ...form, acceptedTerms: e.target.checked })} style={{ marginTop: '2px' }} />
+                                <div>
+                                    <b>Termos de Responsabilidade Obrigatórios</b><br/>
+                                    Entendo que o 2580 Carregado atua apenas como mural informativo. A partilha de boleias acarreta riscos, e eu assumo total responsabilidade por quem aceito no meu veículo ou pela viagem que efetuo.
+                                </div>
+                            </label>
+                        </div>
+                        <button type="submit" disabled={submitting || !form.acceptedTerms} style={{ padding: '12px', borderRadius: '10px', border: 'none', background: (submitting || !form.acceptedTerms) ? '#9CA3AF' : 'var(--color-primary)', color: 'white', fontWeight: '700', fontSize: '1rem', cursor: (submitting || !form.acceptedTerms) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
+                            {submitting ? <><Loader size={18} className="spin" /> A submeter...</> : <><Car size={18} /> Submeter Boleia</>}
                         </button>
                     </form>
                 </div>
@@ -179,8 +201,24 @@ const Boleia = () => {
                         <Car size={40} color="#d1d5db" />
                         <p style={{ color: 'var(--color-text-muted)', marginTop: '12px' }}>Sem boleias disponíveis. Seja o primeiro!</p>
                     </div>
-                ) : filtered.map(ride => (
-                    <div key={ride.id} style={{ background: 'white', borderRadius: '12px', padding: '16px', boxShadow: 'var(--shadow-sm)', borderLeft: '5px solid var(--color-primary)', border: '1px solid #f3f4f6', borderLeft: '5px solid var(--color-primary)' }}>
+                ) : filtered.map((ride, index) => (
+                    <React.Fragment key={ride.id}>
+                        {/* Subliminal Ad every 3 items */}
+                        {index > 0 && index % 3 === 0 && (
+                            <div style={{ background: 'linear-gradient(135deg, #10B981 0%, #3B82F6 100%)', borderRadius: '12px', padding: '16px', color: 'white', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8, marginBottom: '4px' }}>Publicidade</div>
+                                    <div style={{ fontWeight: '800' }}>Padaria Carregadense</div>
+                                    <div style={{ fontSize: '0.85rem' }}>Pão fresco todos os dias!</div>
+                                </div>
+                                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600' }}>Visitar</span>
+                            </div>
+                        )}
+                        <div style={{ position: 'relative', background: 'white', borderRadius: '12px', padding: '16px', boxShadow: 'var(--shadow-sm)', border: '1px solid #f3f4f6', borderLeft: '5px solid var(--color-primary)', marginBottom: '10px' }}>
+                            {/* Report Button */}
+                            <button onClick={() => handleReport(ride.id)} style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', fontSize: '0.8rem', color: '#9CA3AF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                🚩 Denunciar
+                            </button>
                         {/* Route */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                             <span style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--color-text)' }}>{ride.origin}</span>

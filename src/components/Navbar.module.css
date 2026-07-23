@@ -1,52 +1,38 @@
 .navbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    padding: var(--space-md) var(--space-sm);
-    background-color: transparent;
-    /* Seamless integration */
-    position: sticky;
-    top: 0;
+    background-color: var(--color-surface);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
-    backdrop-filter: blur(10px);
-}
-
-.logo {
-    font-weight: 800;
-    font-size: 1.5rem;
-    color: var(--color-accent);
-    text-decoration: none;
-    letter-spacing: -0.5px;
-}
-
-.menuBtn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--color-text);
-    padding: var(--space-xs);
-}
-
-.navLinks {
-    display: flex;
-    gap: var(--space-md);
+    box-shadow: 0 -1px 10px rgba(0,0,0,0.05);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom)) 0;
+    border-top: 1px solid var(--glass-border);
 }
 
 .link {
     text-decoration: none;
     color: var(--color-text-muted);
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.65rem;
     transition: color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    text-align: center;
 }
 
 .link:hover,
 .link.active {
-    color: var(--color-text);
+    color: var(--color-primary);
 }
 
-@media (max-width: 768px) {
-    .navLinks {
-        display: none;
-        /* Mobile menu to be implemented later if needed, sticking to simple for now */
-    }
+/* Fix global padding to prevent content from hiding behind the bottom bar */
+:global(body) {
+    padding-bottom: 70px;
 }

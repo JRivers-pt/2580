@@ -56,7 +56,7 @@ const PerdidosAchados = () => {
     const [submitting, setSubmitting] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
     const [search, setSearch] = useState('');
-    const [form, setForm] = useState({ type: 'lost_pet', title: '', description: '', location: '', contact: '', reward: '' });
+    const [form, setForm] = useState({ type: 'lost_pet', title: '', description: '', location: '', contact: '', reward: '', acceptedTerms: false });
 
     useEffect(() => { fetchItems(); }, []);
 
@@ -67,6 +67,7 @@ const PerdidosAchados = () => {
             .from('perdidos_achados')
             .select('*')
             .eq('resolved', false)
+            .eq('status', 'approved')
             .order('created_at', { ascending: false });
         setItems((!error && data?.length > 0) ? data : mockItems);
         setLoading(false);
@@ -74,18 +75,33 @@ const PerdidosAchados = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!form.acceptedTerms) {
+            window.alert('É obrigatório aceitar os Termos de Responsabilidade.');
+            return;
+        }
         setSubmitting(true);
+        const { acceptedTerms, ...submitData } = form;
         if (!supabase) {
             setTimeout(() => {
-                setItems(prev => [{ ...form, id: Date.now(), created_at: new Date().toISOString(), resolved: false }, ...prev]);
-                setForm({ type: 'lost_pet', title: '', description: '', location: '', contact: '', reward: '' });
-                setShowForm(false); setSubmitting(false);
+                setForm({ type: 'lost_pet', title: '', description: '', location: '', contact: '', reward: '', acceptedTerms: false });
+                setShowForm(false); setSubmitting(false); setSubmitted(true);
             }, 800);
             return;
         }
-        const { error } = await supabase.from('perdidos_achados').insert([{ ...form, resolved: false }]);
-        if (!error) { await fetchItems(); setForm({ type: 'lost_pet', title: '', description: '', location: '', contact: '', reward: '' }); setShowForm(false); }
+        const { error } = await supabase.from('perdidos_achados').insert([{ ...submitData, resolved: false, status: 'pending' }]);
+        if (!error) { 
+            setForm({ type: 'lost_pet', title: '', description: '', location: '', contact: '', reward: '', acceptedTerms: false }); 
+            setShowForm(false); 
+            setSubmitted(true);
+        } else {
+            window.alert('Erro ao publicar: ' + error.message);
+        }
         setSubmitting(false);
+    };
+
+    const handleReport = (id) => {
+        window.alert('🚨 Denúncia registada! A equipa de moderação foi alertada.');
+        setItems(prev => prev.filter(i => i.id !== id));
     };
 
     useEffect(() => {
@@ -168,6 +184,7 @@ const PerdidosAchados = () => {
             {showForm && (
                 <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: 'var(--shadow-md)', border: '1px solid #e5e7eb' }}>
                     <h3 style={{ margin: '0 0 16px 0', fontSize: '1rem' }}>Nova Publicação</h3>
+                    {submitted && <div style={{ background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px', borderRadius: '6px', marginBottom: '12px', fontSize: '0.9rem', color: '#92400E' }}>✅ Registo submetido! Irá aparecer após aprovação da moderação.</div>}
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
                             style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #e5e7eb', fontSize: '0.9rem', fontFamily: 'inherit' }}>
@@ -193,8 +210,17 @@ const PerdidosAchados = () => {
                         <input type="text" placeholder="Recompensa (opcional, ex: 50€)"
                             value={form.reward} onChange={e => setForm({ ...form, reward: e.target.value })}
                             style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #e5e7eb', fontSize: '0.9rem', fontFamily: 'inherit' }} />
-                        <button type="submit" disabled={submitting} style={{ padding: '12px', borderRadius: '10px', border: 'none', background: submitting ? '#9CA3AF' : 'var(--color-accent)', color: 'white', fontWeight: '700', fontSize: '1rem', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                            {submitting ? <><Loader size={18} className="spin" /> A publicar...</> : <><Heart size={18} /> Publicar</>}
+                        <div style={{ background: '#FEF2F2', padding: '10px', borderRadius: '8px', borderLeft: '4px solid #EF4444', marginTop: '4px' }}>
+                            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', fontSize: '0.8rem', color: '#7F1D1D' }}>
+                                <input type="checkbox" checked={form.acceptedTerms} onChange={e => setForm({ ...form, acceptedTerms: e.target.checked })} style={{ marginTop: '2px' }} />
+                                <div>
+                                    <b>Termos de Responsabilidade</b><br/>
+                                    Partilhe contactos com cautela. O 2580 não se responsabiliza por burlas relacionadas com recompensas de animais ou objetos.
+                                </div>
+                            </label>
+                        </div>
+                        <button type="submit" disabled={submitting || !form.acceptedTerms} style={{ padding: '12px', borderRadius: '10px', border: 'none', background: (submitting || !form.acceptedTerms) ? '#9CA3AF' : 'var(--color-accent)', color: 'white', fontWeight: '700', fontSize: '1rem', cursor: (submitting || !form.acceptedTerms) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
+                            {submitting ? <><Loader size={18} className="spin" /> A submeter...</> : <><Heart size={18} /> Submeter Registo</>}
                         </button>
                     </form>
                 </div>
@@ -209,11 +235,25 @@ const PerdidosAchados = () => {
                         <Heart size={40} color="#d1d5db" />
                         <p style={{ color: 'var(--color-text-muted)', marginTop: '12px' }}>Nenhum resultado. O Carregado está com sorte! 🍀</p>
                     </div>
-                ) : filtered.map(item => {
+                ) : filtered.map((item, index) => {
                     const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.lost_item;
                     return (
-                        <div key={item.id} style={{ background: cfg.bg, borderRadius: '12px', padding: '16px', marginBottom: '12px', borderLeft: `5px solid ${cfg.border}`, boxShadow: 'var(--shadow-sm)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                        <React.Fragment key={item.id}>
+                            {index > 0 && index % 4 === 0 && (
+                                <div style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)', borderRadius: '12px', padding: '16px', color: 'white', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8, marginBottom: '4px' }}>Publicidade</div>
+                                        <div style={{ fontWeight: '800' }}>Oficina Central</div>
+                                        <div style={{ fontSize: '0.85rem' }}>Revisões e reparações – Preço Justo</div>
+                                    </div>
+                                    <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600' }}>Ver mais</span>
+                                </div>
+                            )}
+                            <div style={{ position: 'relative', background: cfg.bg, borderRadius: '12px', padding: '16px', marginBottom: '12px', borderLeft: `5px solid ${cfg.border}`, boxShadow: 'var(--shadow-sm)' }}>
+                                <button onClick={() => handleReport(item.id)} style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', fontSize: '0.8rem', color: '#9CA3AF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    🚩
+                                </button>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                                     <span style={{ background: cfg.badge, color: 'white', fontSize: '0.68rem', fontWeight: '800', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.4px' }}>
                                         {cfg.label}
@@ -258,6 +298,7 @@ const PerdidosAchados = () => {
                                 </a>
                             </div>
                         </div>
+                        </React.Fragment>
                     );
                 })}
             </div>

@@ -39,13 +39,8 @@ const PRIORITY_CATEGORIES = [
     'agricultura', 'jardinagem', 'hotelaria', 'receção', 'rececao'
 ];
 
-// ── Proxy waterfall ─────────────────────────────────────────────────────────
-const CORS_PROXIES = [
-    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    (url) => `https://proxy.cors.sh/${url}`,
-    (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-];
-const BONS_EMPREGOS_JSON = 'https://www.bonsempregos.com/jobsjson';
+// ── Jobs API ─────────────────────────────────────────────────────────────
+const JOBS_API = '/api/jobs';
 
 // ── Filter tabs ─────────────────────────────────────────────────────────────
 const FILTER_TABS = [
@@ -76,27 +71,13 @@ const Jobs = () => {
         if (activeTab === 'live') fetchJobs();
     }, [activeTab]);
 
-    async function fetchWithProxyFallback(targetUrl) {
-        for (const makeProxy of CORS_PROXIES) {
-            try {
-                const res = await fetch(makeProxy(targetUrl), { signal: AbortSignal.timeout(8000) });
-                if (!res.ok) continue;
-                const text = await res.text();
-                try {
-                    const parsed = JSON.parse(text);
-                    if (parsed.contents) return JSON.parse(parsed.contents);
-                    return parsed;
-                } catch { return JSON.parse(text); }
-            } catch { /* try next */ }
-        }
-        throw new Error('All proxies failed');
-    }
-
     async function fetchJobs() {
         setLoading(true);
         setError(null);
         try {
-            const data = await fetchWithProxyFallback(BONS_EMPREGOS_JSON);
+            const res = await fetch(JOBS_API, { signal: AbortSignal.timeout(8000) });
+            if (!res.ok) throw new Error('API request failed');
+            const data = await res.json();
             const list = Array.isArray(data) ? data : (data.jobs || []);
             if (list.length === 0) throw new Error('Empty');
 
