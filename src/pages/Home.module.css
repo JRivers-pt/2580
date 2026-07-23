@@ -46,14 +46,14 @@
 .cardTitle {
     font-weight: 700;
     font-size: 1.15rem;
-    color: #111827;
+    color: var(--color-text);
     margin-bottom: 2px;
     letter-spacing: -0.02em;
 }
 
 .cardDesc {
     font-size: 0.9rem;
-    color: #6B7280;
+    color: var(--color-text-muted);
     font-weight: 500;
 }
 

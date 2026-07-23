@@ -126,7 +126,7 @@ const ActivityCounter = () => {
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
             {items.map((item, i) => (
-                <div key={i} style={{ background: 'white', borderRadius: '12px', padding: '10px 8px', textAlign: 'center', boxShadow: 'var(--shadow-sm)', border: '1px solid #f3f4f6' }}>
+                <div key={i} style={{ background: 'var(--color-surface)', borderRadius: '12px', padding: '10px 8px', textAlign: 'center', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--glass-border)' }}>
                     <div style={{ fontSize: '1.3rem' }}>{item.icon}</div>
                     <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--color-primary)', lineHeight: 1.2 }}>{item.value}</div>
                     <div style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', fontWeight: '600', marginTop: '1px' }}>{item.label}</div>
@@ -158,14 +158,14 @@ const Home = () => {
 
             {news.length > 0 && (
                 <div style={{ marginBottom: '24px' }}>
-                    <h3 style={{ fontSize: '1.2rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Megaphone size={20} /> Junta News
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-text)' }}>
+                        <Megaphone size={20} color="var(--color-primary)" /> Junta News
                     </h3>
                     {news.map(item => (
-                        <div key={item.id} style={{ background: 'white', padding: '12px', borderRadius: '8px', marginBottom: '8px', borderLeft: '4px solid var(--color-primary)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                            <div style={{ fontWeight: 'bold' }}>{item.title}</div>
-                            <p style={{ fontSize: '0.9rem', color: '#555', margin: '4px 0 0 0' }}>{item.body}</p>
-                            <small style={{ color: '#999', fontSize: '0.8rem' }}>{new Date(item.created_at).toLocaleDateString()}</small>
+                        <div key={item.id} style={{ background: 'var(--color-surface)', padding: '12px', borderRadius: '8px', marginBottom: '8px', borderLeft: '4px solid var(--color-primary)', boxShadow: 'var(--shadow-sm)' }}>
+                            <div style={{ fontWeight: 'bold', color: 'var(--color-text)' }}>{item.title}</div>
+                            <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', margin: '4px 0 0 0' }}>{item.body}</p>
+                            <small style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', opacity: 0.8 }}>{new Date(item.created_at).toLocaleDateString()}</small>
                         </div>
                     ))}
                 </div>
