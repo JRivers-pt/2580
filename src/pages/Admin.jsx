@@ -38,15 +38,15 @@ const Admin = () => {
         setLoading(true);
         try {
             if (!supabase) {
-                alert('Erro: Conexão à base de dados não configurada. As variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY estão em falta na Vercel.');
+                window.alert('Erro: Conexão à base de dados não configurada. As variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY estão em falta na Vercel.');
                 setLoading(false);
                 return;
             }
             const { error } = await supabase.auth.signInWithOtp({ email });
-            if (error) alert(error.message);
-            else alert('✅ Verifique o seu email para o link de acesso!');
+            if (error) window.alert(error.message);
+            else window.alert('✅ Verifique o seu email para o link de acesso!');
         } catch (err) {
-            alert('Erro inesperado: ' + err.message);
+            window.alert('Erro inesperado: ' + err.message);
         }
         setLoading(false);
     };
